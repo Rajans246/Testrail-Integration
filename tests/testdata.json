@@ -1,0 +1,22 @@
+{
+    "remark": "QATest",
+    "username": "codoid@trackerwave.com1",
+    "password": "Twcotst@48",
+    "TESTRAIL_URL": "https://codtestpy.testrail.io/",
+    "TESTRAIL_USER": "natarajan.senthil@codoid.com",
+    "TESTRAIL_PASSWORD": "Test@123",
+    "TESTRAIL_PROJECT_ID": "234",
+    "project_name" : "pytest13jan",
+    "suite_name" : "Demo",
+    "section_name" : "Testing",
+    "test_run_name" : "TestRun007",
+    "test_case_id" : "18",
+
+    "test_case_title" :"User creates a porter request",
+    "str_testcaseID" :"18",
+    "str_testrunID":"5",
+    "scenario_status" : "PASSED",
+    "project_id" : "55",
+    "section_id" : "1"
+
+}

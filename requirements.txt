@@ -1,0 +1,8 @@
+pytest
+pytest-bdd
+webdriver-manager
+selenium
+pytest-html
+pyHamcrest
+Appium-Python-Client
+allure-pytest-bdd == 2.13.2

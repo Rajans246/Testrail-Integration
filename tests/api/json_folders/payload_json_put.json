@@ -1,0 +1,39 @@
+{
+    "requestId": 32287,
+    "assetCategory": "AT-TO",
+    "assetCount": null,
+    "comments": "Patient transfer",
+    "destinationId": 20012,
+    "endTime": "2023-12-22 17:09:00",
+    "isTracable": null,
+    "isautoAssigned": true,
+    "porterCount": 1,
+    "requestCategory": "PR-PA",
+    "sourceId": 20016,
+    "startTime": "2023-12-22 16:54:00",
+    "type": "RQT-PO",
+    "status": "RQ-CR",
+    "performer": [
+        {
+            "id": 1494,
+            "locationId": null,
+            "type": "TAT-PO",
+            "requestDetailId": 140671,
+            "isDeletable": false
+        }
+    ],
+    "remarks": null,
+    "rating": "1",
+    "srcLocationTypeId": 2,
+    "destLocationTypeId": 2,
+    "srcParentLocationId": 20015,
+    "destParentLocationId": 1989,
+    "poolName": "PN-IN",
+    "gender": null,
+    "isAutoComplete": null,
+    "priority": false,
+    "isRoundTrip": true,
+    "serviceGroupId": null,
+    "poolLocationId": "PL-FL1",
+    "cancelReasonId": null
+}
