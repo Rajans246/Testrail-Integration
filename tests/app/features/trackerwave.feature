@@ -10,10 +10,10 @@ Feature: trackerwave
       | EMAIL    | PASSWORD |
       | username | password |
   
-  # Scenario Outline: User creates a porter request
-  #   Given I am on the homepage
-  #   When I create a request using following details <Servicegroup> , <Service> , <From> , <Remarks>
-  #   Then I should see the requestId and <Remarks>
-  #   Examples:
-  #     | Servicegroup | Service     | From                                           | Remarks |
-  #     | All          | Hand towels | Baby Room, Ground Floor,Test block,Trackerwave | remarks |
+  Scenario Outline: User creates a porter request
+    Given I am on the homepage
+    When I create a request using following details <Servicegroup> , <Service> , <From> , <Remarks>
+    Then I should see the requestId and <Remarks>
+    Examples:
+      | Servicegroup | Service     | From                                           | Remarks |
+      | All          | Hand towels | Baby Room, Ground Floor,Test block,Trackerwave | remarks |

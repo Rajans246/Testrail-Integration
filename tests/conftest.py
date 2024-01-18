@@ -134,15 +134,20 @@ def pytest_bdd_after_step(request, feature, scenario, step, step_func, step_func
     if step.failed:
         print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  FAILED")
     # if step.failed:
-    if step.Exception:
-        print(f"Step failed due to exception: {Exception}")
-        print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  FAILED")
-        # print("Custom Option Value:", request.config.getoption('--custom-option'))
+    # if step.Exception:
+    #     print(f"Step failed due to exception: {Exception}")
+    #     print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  FAILED")
+    #     # print("Custom Option Value:", request.config.getoption('--custom-option'))
         # print()
     else:
         print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  PASSED")
         # print("Custom Option Value:", request.config.getoption('--custom-option'))
         # print("PASSED")
+@pytest.hookimpl
+def pytest_bdd_step_error(request, feature, scenario, step, step_func, step_func_args, exception):
+    print(f"Step: {step.keyword} {step.name} encountered an error.")
+    print(f"Arguments passed to step function: {step_func_args}")
+    print(f"Exception: {exception}")
 
 # @pytest.hookimpl(tryfirst=True)
 # def pytest_bdd_after_scenario(request, feature, scenario):
