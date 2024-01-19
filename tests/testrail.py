@@ -61,7 +61,7 @@ class APIClient:
     def __send_request(self, method, uri, data):
         # print("data entered ___send request")
         url = self.__url + uri
-        # print(url)
+        print(url)
         
         auth = str(
             base64.b64encode(

@@ -116,21 +116,36 @@ def pytest_configure(config):
 def after_feature(request):
     yield
     # Perform actions or cleanup after the execution of the entire feature file
-    print(f"\nAfter Feature: {request.node.name}")
+    # if hasattr(request, 'node') and hasattr(request.node, 'location'):
+    feature_file_name = request.config.invocation_params.args[2]
+    request.config._pytestbdd_current_feature_name
+    print(f"\nAfter Feature: {request.node.name} '@{feature_file_name}' marker and  {request.config._pytestbdd_current_feature_name}.feature")
     print("feature file executed successfully")
+    TestRailUtil.add_test_result(testdata["str_testrunID"])
 
 
-@pytest.fixture()
-def clear_results_file_at_session_start():
-    results_file_path = os.path.join(os.path.dirname(__file__), 'result.json')
-    # Open the file in write mode to clear its content
-    with open(results_file_path, 'w') as json_file:
-        json_file.write('{}') 
+# @pytest.fixture()
+# def clear_results_file_at_session_start():
+#     results_file_path = os.path.join(os.path.dirname(__file__), 'result.json')
+#     # Open the file in write mode to clear its content
+#     with open(results_file_path, 'w') as json_file:
+#         json_file.write('{}') 
 
+@pytest.fixture(scope='session', autouse=True)
+def clear_results_file(request):
+    result_data_path = os.path.join(os.path.dirname(__file__), 'result.json')
+    
+    # Clear the results file at the start of the session
+    if os.path.exists(result_data_path):
+        os.remove(result_data_path)
+    
+    # The fixture function doesn't need to yield anything
+    yield
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_bdd_before_scenario(request, feature, scenario):
     request.config._pytestbdd_current_case_id = None
+    request.config._pytestbdd_current_feature_name=feature.name
     global current_case_id 
     custom_option = request.config.getoption("--custom-option")
     print(f"\nBefore Scenario: {feature.name} - {scenario.name}")

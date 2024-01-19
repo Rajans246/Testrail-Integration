@@ -1,3 +1,4 @@
+import os
 from tests.testrail import *
 from tests.testrail import APIClient
 
@@ -208,7 +209,19 @@ class TestRailUtil:
                     TestRailUtil.run = TestRailUtil.testrail.send_post(f'add_run/{project_id}', run_data)
                     new_run_id = TestRailUtil.run['id']
                     print("TestRail test Run Added Successfully. New Run ID:", new_run_id)
+                    result_data = os.path.join(os.path.dirname(__file__), 'testdata.json')
+                    with open(result_data, 'r') as json_file:
+                        data = json.load(json_file)
+
+                    # Update the value of str_testrunID
+                    data['str_testrunID'] = new_run_id
+
+                    # Save the updated JSON data back to the file
+                    with open('your_json_file.json', 'w') as json_file:
+                        json.dump(data, json_file, indent=4)
+                    
                     return new_run_id
+
             else:
                 print("Error: 'runs' key not found in the response.")
                 return None
@@ -228,40 +241,47 @@ class TestRailUtil:
     #         print("Error:", str(e))
 
     @staticmethod
-    def add_test_result(test_run_id, test_case_id):
+    def add_test_result(test_run_id):
+        # try:
+        #     # if str(test_case_id) == str(TestRailUtil.str_testcaseID):
+        #     if str(test_case_id) == test_case_id:
+        #         print("test case_ id")
+        #         print(test_case_id)
+        #         custom_result_fields = TestRailUtil.testrail.send_get('get_result_fields')
+        #         status_id = 1 if TestRailUtil.scenario_status == "PASSED" else 5
+        #         result_data = {'status_id': status_id, 'custom_result_fields': custom_result_fields}
+        #         print("result data")
+        #         print("run id ")                
+        #         print("#@!")
+        #         print(test_run_id)
+        #         run_id = test_run_id
+        #         run_id = int(run_id)
+        #         result_data['run_id'] = run_id
+        #         print(run_id)
+        #         TestRailUtil.testrail.send_post(f'add_result_for_case/{run_id}/{test_case_id}', result_data)
+        #         print("Testrail Run id:", run_id)
+        #         print("Test Result Added to Testrail")
+        # except Exception as e:
+        #     print("Error:", str(e))
         try:
-            # if str(test_case_id) == str(TestRailUtil.str_testcaseID):
-            if str(test_case_id) == test_case_id:
-                print("test case_ id")
-                print(test_case_id)
-                custom_result_fields = TestRailUtil.testrail.send_get('get_result_fields')
-                status_id = 1 if TestRailUtil.scenario_status == "PASSED" else 5
-                result_data = {'status_id': status_id, 'custom_result_fields': custom_result_fields}
-                print("result data")
-                print("run id ")
-                print(result_data)
-                # run_id = result_data.get('run_id')
-                
-                print("#@!")
-                print(test_run_id)
-                # print(result_data["run_id"])
-                run_id = test_run_id
-                # if run_id:
-                    # If 'run_id' is present, convert it to an integer
-                run_id = int(run_id)
-                result_data['run_id'] = run_id
-                print(run_id)
-                TestRailUtil.testrail.send_post(f'add_result_for_case/{run_id}/{test_case_id}', result_data)
-                print("Testrail Run id:", run_id)
-                print("Test Result Added to Testrail")
-                # else:
-                    # print("Error: 'run_id' not found in result_data.")
-                # if test_run_id:
-                #     result_data['run_id'] = int(test_run_id)
-                #     print(result_data["run_id"])
-                #     TestRailUtil.testrail.send_post(f'add_result_for_case/{test_case_id}',int(test_case_id),result_data)
-                #     print("Testrail Run id:", test_run_id)
-                #     print("Test Result Added to Testrail")
+            # Check if the test run exists
+            run_info = TestRailUtil.testrail.send_get(f'get_run/{test_run_id}')
+            if 'error' in run_info:
+                print(f"Error: Test run with ID {test_run_id} not found.")
+                return
+            
+            # status_id = 1 if TestRailUtil.scenario_status == "PASSED" else 5
+            result_data = os.path.join(os.path.dirname(__file__), 'result.json')
+            with open(result_data, "r") as json_file:
+                data = json.load(json_file)
+
+            print("your data's are")
+            print(data)
+            dd = {'results': [{'case_id': 18, 'status_id': 1}]}
+            # Add the result for the specified test run and test case
+            TestRailUtil.testrail.send_post(f'add_results_for_cases/{test_run_id}',data)
+            
+            print("Test Result Added to TestRail")
         except Exception as e:
             print("Error:", str(e))
 
