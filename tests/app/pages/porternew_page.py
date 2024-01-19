@@ -167,7 +167,7 @@ class PorterPage(BasePage):
 
     def hamburger_click_if_no_request_page_appear(self):
         l = locators
-        print("before click the hamburger")
+        # print("before click the hamburger")
         try:
             ele = self.wait.until(EC.visibility_of_element_located(
                 l['all_requests'])).is_displayed()

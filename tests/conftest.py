@@ -96,7 +96,7 @@ import json
 import string
 import traceback
 from tests.params import server_name
-from tests.testrail_util import TestRailUtil  # Import the TestRailUtil class
+from tests.testrail_util import TestRailUtil  # Itestdata_pathmport the TestRailUtil class
 
 
 
@@ -112,54 +112,200 @@ def pytest_configure(config):
         "markers", "testrail(case_id): associate a TestRail case ID with a scenario"
     )
 
+@pytest.fixture(scope="session", autouse=True)
+def after_feature(request):
+    yield
+    # Perform actions or cleanup after the execution of the entire feature file
+    print(f"\nAfter Feature: {request.node.name}")
+    print("feature file executed successfully")
+
+
+@pytest.fixture()
+def clear_results_file_at_session_start():
+    results_file_path = os.path.join(os.path.dirname(__file__), 'result.json')
+    # Open the file in write mode to clear its content
+    with open(results_file_path, 'w') as json_file:
+        json_file.write('{}') 
+
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_bdd_before_scenario(request, feature, scenario):
+    request.config._pytestbdd_current_case_id = None
+    global current_case_id 
     custom_option = request.config.getoption("--custom-option")
     print(f"\nBefore Scenario: {feature.name} - {scenario.name}")
     print(f"Custom Option Value: {custom_option}")
     scenario_tags = list(scenario.tags)
     print(f"Scenario Tags: {scenario_tags}")
     print(f"Is 'testrail' in scenario_tags? {'testrail' in scenario_tags}")
+   
     for tag in scenario_tags:
             print("tag is")
             print(tag)
             if tag.startswith('testrail-C'):
-                case_id = tag[10:]  # Extract the TestRail case ID from the tag
+                current_case_id = tag[10:]  # Extract the TestRail case ID from the tag
                 print("mytestrun rest")
-                print(f"TestRail Case ID: {case_id}")
-                break
+                print(f"TestRail Case ID: {current_case_id}")
+                
+                print("request.config._pytestbdd_current_case_id")
+                print(request.config._pytestbdd_current_case_id)
+                request.config._pytestbdd_current_case_id = current_case_id
+                print(request.config._pytestbdd_current_case_id)
+                # TestRailUtil.save_test_case_id(current_case_id)
+                print
+            #     break
+        #     if 'testrail-C' in scenario.tags:
+        # # Extract case ID from the testrail tag
+        #       case_id = scenario.tags['testrail-C']
+        # # Set the current_case_id in the request.config
+            #   print(case_id)
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_bdd_after_step(request, feature, scenario, step, step_func, step_func_args):
-    if step.failed:
-        print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  FAILED")
-    # if step.failed:
-    # if step.Exception:
-    #     print(f"Step failed due to exception: {Exception}")
-    #     print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  FAILED")
+    current_case_id = getattr(request.config, '_pytestbdd_current_case_id', None)
+    try:
+        result_data_path = os.path.join(os.path.dirname(__file__), 'result.json')
+        with open(result_data_path, "r") as json_file:
+            data = json.load(json_file)
+    except FileNotFoundError:
+        data = {}
+
+    data.setdefault("results", [])
+    status_id = 1 if not step.failed else 5  # Assuming '1' is the status_id for passed
+
+    # current_case_id = request.config._pytestbdd_current_case_id
+    print("your caseee id isss")
+    print(current_case_id)
+
+    if current_case_id:
+        for result in data["results"]:
+            if result["case_id"] == current_case_id:
+                result["status_id"] = status_id
+                break
+        else:
+            data["results"].append({"case_id": current_case_id, "status_id": status_id})
+
+    with open(result_data_path, "w") as json_file:
+        json.dump(data, json_file)
+    # global current_case_id
+    # try:
+    #     result_data = os.path.join(os.path.dirname(__file__), 'result.json')
+    #     with open(result_data, "r") as json_file:
+    #         data = json.load(json_file)
+    # except FileNotFoundError:
+    #     # If result.json doesn't exist, initialize with an empty list
+    #     data = {}
+
+    # data.setdefault("results", [])
+    # exception = None
+    # # try:
+    # #     result = yield
+    # # except Exception as e:
+    # #     exception = e
+    # if step.failed or exception:
+    #     status_id = 5 
+    #     print(f"Failed After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name} {status_id} FAILED")
+    # else:
+    #     status_id = 1  # Assuming '1' is the status_id for passed
+    #     print(f"Passed After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name} {status_id} PASSED")
+    # if current_case_id:
+    #         # Update the status_id for the corresponding case_id
+    #         for result in data["results"]:
+    #             if result["case_id"] == current_case_id:
+    #                 result["status_id"] = status_id  # Assuming '5' is the status_id for failed
+    #                 break
+    #         else:
+    #             # If case_id not found, add a new result entry
+    #             data["results"].append({"case_id": current_case_id, "status_id": status_id})
+
+    # # if step.exception:
+    # # if step.Exception:
+    #     # print(f"Step failed due to exception: {Exception}")
+    #     # print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  FAILED")
     #     # print("Custom Option Value:", request.config.getoption('--custom-option'))
-        # print()
-    else:
-        print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name}  PASSED")
+    #     # print()
+    # # else:
+    # #     print(f"After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name} PASSED")
+    # #     if current_case_id:
+    # #         # Update the status_id for the corresponding case_id
+    # #         for result in data["results"]:
+    # #             if result["case_id"] == current_case_id:
+    # #                 result["status_id"] = 1  # Assuming '1' is the status_id for passed
+    # #                 break
+    # #         else:
+    # #             # If case_id not found, add a new result entry
+    # #             data["results"].append({"case_id": current_case_id, "status_id": 1})
+    
+    # with open("result.json", "w") as json_file:
+    #     json.dump(data, json_file)
+    
+    # current_case_id = None 
         # print("Custom Option Value:", request.config.getoption('--custom-option'))
         # print("PASSED")
 @pytest.hookimpl
 def pytest_bdd_step_error(request, feature, scenario, step, step_func, step_func_args, exception):
-    print(f"Step: {step.keyword} {step.name} encountered an error.")
-    print(f"Arguments passed to step function: {step_func_args}")
-    print(f"Exception: {exception}")
+    current_case_id = request.config._pytestbdd_current_case_id
+    if current_case_id:
+        try:
+            testdata_path = os.path.join(os.path.dirname(__file__), 'result.json')
+            with open(testdata_path, "r") as json_file:
+                data = json.load(json_file)
+        except FileNotFoundError:
+            data = {}
+        data.setdefault("results", [])
 
-# @pytest.hookimpl(tryfirst=True)
-# def pytest_bdd_after_scenario(request, feature, scenario):
-#     custom_option = request.config.getoption("--custom-option")
-#     print(f"\nAfter Scenario: {feature.name} - {scenario.name}")
-#     print(f"Custom Option Value: {custom_option}")
-#     for step in scenario.steps:
-#         if hasattr(step, 'exception') and step.exception:
-#             print(f"Step '{step.name}' failed")
-#         else:
-#             print(f"Step '{step.name}' passed")
+        for result in data["results"]:
+            if result["case_id"] == current_case_id:
+                result["status_id"] = 5  # Assuming '5' is the status_id for failed
+                break
+        else:
+            data["results"].append({"case_id": current_case_id, "status_id": 5})
 
+        with open(testdata_path, "w") as json_file:
+            json.dump(data, json_file)
+    # global current_case_id
+    # print(f"Step: {step.keyword} {step.name} encountered an error.")
+    # # print(f"Arguments passed to step function: {step_func_args}")
+    # # print(f"Failed After Step: {feature.name} - {scenario.name} - {step.keyword} {step.name} FAILED")
+    # print("your current case id is")
+    # print(current_case_id)
+    # print(f"Exception: {exception}")
+    # # data = {}
+    # if current_case_id:
+    #     try:
+    #         testdata_path = os.path.join(os.path.dirname(__file__), 'testdata.json')
+    #         with open(testdata_path, "r") as json_file:
+    #             data = json.load(json_file)
+    #         print("your data")
+    #         print(data)
+    #     except FileNotFoundError:
+    #         # If result.json doesn't exist, initialize with an empty dictionary
+    #         data = {}
+    #     data.setdefault("results", [])
+    #     for result in data["results"]:
+    #         print("entered in to the resultssss")
+    #         if result["case_id"] == current_case_id:
+    #             result["status_id"] = 5  # Assuming '5' is the status_id for failed
+    #             break
+    #     else:
+    #         # If case_id not found, add a new result entry with status_id = 5
+    #         data["results"].append({"case_id": current_case_id, "status_id": 5})
+    #         print("newlyentered")
+
+    # with open("result.json", "w") as json_file:
+    #         json.dump(data, json_file)
+
+    # print(f"After Step Failed: {feature.name} - {scenario.name} - {step.keyword} {step.name} FAILED")
+
+    # current_case_id = None
+
+# def pytest_bdd_apply_tag(tag, function):
+#     if tag.startswith('testrail-C'):
+#         # Extract case ID from the tag
+#         case_id = tag.split('-C')[1]
+#         # Set the current_case_id in the request.config
+#         request.config._pytestbdd_current_case_id = case_id
+#     return True
 
 @pytest.fixture(scope='session')
 def browser(request):

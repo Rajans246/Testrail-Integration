@@ -53,7 +53,7 @@ def verify_main_page(browser):
     PorterPage(browser).verify_trackerwave_main_page()
     # test_run_id = TestRailUtil.run['id']
     # test_case_id = TestRailUtil.testCase['id']
-    TestRailUtil.add_test_result(data["str_testrunID"], data["str_testcaseID"])
+    # TestRailUtil.add_test_result(data["str_testrunID"], data["str_testcaseID"])
     
 
 @given(parsers.parse("I am on the homepage"))
